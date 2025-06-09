@@ -78,4 +78,20 @@ class ProfileControllerTest extends TestCase
         $response->assertJsonPath('meta.current_page', 1);
         $response->assertJsonPath('meta.last_page', 1);
     }
+
+    public function test_administrator_can_delete_profile(): void
+    {
+        /** @var Profile $profile */
+        $profile = Profile::factory()->create();
+
+        Sanctum::actingAs($this->admin);
+
+        $response = $this->delete("/api/v1/profiles/$profile->id");
+
+        $response->assertStatus(204);
+
+        $this->assertDatabaseMissing('profiles', [
+            'id' => $profile->id,
+        ]);
+    }
 }

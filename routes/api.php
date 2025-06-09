@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\TokenController;
 use Illuminate\Http\Request;
@@ -18,4 +19,8 @@ Route::get('/profiles', [ProfileController::class, 'index'])->name('profiles.ind
 Route::put('/profiles/{profile}', [ProfileController::class, 'update'])->name('profiles.update')
     ->middleware('auth:sanctum');
 Route::delete('/profiles/{profile}', [ProfileController::class, 'destroy'])->name('profiles.destroy')
+    ->middleware('auth:sanctum');
+
+Route::post('/profiles/{profile}/comments', [CommentController::class, 'store'])
+    ->name('profiles.comments.store')
     ->middleware('auth:sanctum');

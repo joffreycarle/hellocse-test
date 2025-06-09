@@ -15,6 +15,7 @@ Route::delete('/tokens', [TokenController::class, 'destroy'])
     ->name('token.destroy');
 
 Route::get('/profiles', [ProfileController::class, 'index'])->name('profiles.index');
-
+Route::put('/profiles/{profile}', [ProfileController::class, 'update'])->name('profiles.update')
+    ->middleware('auth:sanctum');
 Route::delete('/profiles/{profile}', [ProfileController::class, 'destroy'])->name('profiles.destroy')
     ->middleware('auth:sanctum');

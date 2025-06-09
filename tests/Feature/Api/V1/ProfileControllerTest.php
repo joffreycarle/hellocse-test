@@ -6,6 +6,8 @@ use App\Enums\ProfileStatus;
 use App\Models\Administrator;
 use App\Models\Profile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -93,5 +95,36 @@ class ProfileControllerTest extends TestCase
         $this->assertDatabaseMissing('profiles', [
             'id' => $profile->id,
         ]);
+    }
+
+    public function test_administrator_can_update_profile(): void
+    {
+        Storage::fake('public');
+
+        /** @var Profile $profile */
+        $profile = Profile::factory([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'status' => ProfileStatus::Inactive->value,
+            'administrator_id' => $this->admin->id,
+        ])->create();
+
+        Sanctum::actingAs($this->admin);
+
+        $response = $this->put("/api/v1/profiles/$profile->id", [
+            'first_name' => 'Joffrey',
+            'last_name' => 'Carle',
+            'image' => UploadedFile::fake()->image('profile.jpg', 300, 300),
+            'status' => ProfileStatus::Active->value,
+        ]);
+
+        $response->assertSuccessful();
+
+        $profile->refresh();
+        $this->assertEquals('Joffrey', $profile->first_name);
+        $this->assertEquals('Carle', $profile->last_name);
+        $this->assertEquals(ProfileStatus::Active->value, $profile->status);
+
+        Storage::disk('public')->assertExists($profile->image);
     }
 }
